@@ -1,0 +1,77 @@
+# Makefile_intel
+# Ver. 0 (26-Apr-2023)
+#   This is available in Intel oneAPI 2022.
+#   You can input the following on a command line to compile
+#   the C codes:
+#   make -f Makefile_for_C
+#
+
+CC = icl
+COPT = /Qopenmp
+COPT1 = /Qstd=c99 /Qmkl
+
+# case 1: works when LAPACK and BLAS are installed.
+LIBS    = mkl_lapack95_lp64.lib mkl_intel_lp64.lib mkl_intel_thread.lib  mkl_core.lib libiomp5md.lib
+
+#############
+INC1 = For_Kry_sub_tech.h
+
+#############
+BASE1= main_simul_intel
+OBJS1= $(BASE1).obj
+SRC1= $(BASE1).c
+EXE1= sim_intel.exe
+
+##################################################
+Sub1= SERK3_SSDFMT_NonComm
+Sub2= RanGene_no_gsl
+Sub3= mt19937ar
+Sub4= srock2_using_Ab_values
+Sub5= GetSROCK2Val_from_rectp
+Sub6= SERK3_SSDFMT_DNoise
+####################
+SubSRC1= $(Sub1).c
+SubOBJ1= $(Sub1).obj
+SubSRC2= $(Sub2).c
+SubOBJ2= $(Sub2).obj
+SubSRC3= $(Sub3).c
+SubOBJ3= $(Sub3).obj
+SubSRC4= $(Sub4).c
+SubOBJ4= $(Sub4).obj
+SubSRC5= $(Sub5).c
+SubOBJ5= $(Sub5).obj
+SubSRC6= $(Sub6).c
+SubOBJ6= $(Sub6).obj
+##################################################
+AddOBJ1= Copy_Ab_values_for_C.obj
+AddOBJ2= dgcoov.obj dgpadm.obj dsExtPhiv.obj dsexpv.obj dsphi1v.obj dsExtPhi2vBig.obj dsPhi2vBig.obj dsexpmvtay2.obj
+##################################################
+SubOBJs= $(SubOBJ1) $(SubOBJ2) $(SubOBJ3) $(SubOBJ4) $(SubOBJ5) $(SubOBJ6) $(AddOBJ1) $(AddOBJ2)
+##################################################
+
+all: $(EXE1)
+
+$(EXE1) : $(OBJS1) $(SubOBJs)
+	${CC} $(OBJS1) $(SubOBJs) $(LIBS) -o $@
+
+$(OBJS1) : $(SRC1) $(SubOBJ1) $(INC1)
+	${CC} -c $(SRC1) $(COPT1)
+
+##################################################
+$(SubOBJ1) : $(SubSRC1) $(INC1)
+	 $(CC) -c $(SubSRC1) $(COPT) $(COPT1)
+
+$(SubOBJ2) : $(SubSRC2)
+	 $(CC) -c $(SubSRC2)
+
+$(SubOBJ3) : $(SubSRC3)
+	 $(CC) -c $(SubSRC3)
+
+$(SubOBJ4) : $(SubSRC4)
+	 $(CC) -c $(SubSRC4) $(COPT) $(COPT1)
+
+$(SubOBJ5) : $(SubSRC5)
+	 $(CC) -c $(SubSRC5)
+
+$(SubOBJ6) : $(SubSRC6)
+	 $(CC) -c $(SubSRC6) $(COPT) $(COPT1)

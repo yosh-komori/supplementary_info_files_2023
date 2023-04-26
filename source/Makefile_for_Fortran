@@ -1,0 +1,75 @@
+# Makefile_for_Fortran
+# Ver. 0 (26-Apr-2023)
+#   This is available in Intel oneAPI 2022.
+#   You can input the following on a command line to compile
+#   the Fortran codes:
+#   make -f Makefile_for_Fortran
+#
+
+FCC= ifort
+
+####################
+Sub1= Copy_Ab_values_for_C
+Sub2= dgcoov
+Sub3= dgpadm
+Sub4= dsExtPhiv
+Sub5= dsexpv
+Sub6= dsphi1v
+Sub7= dsExtPhi2vBig
+Sub8= dsPhi2vBig
+Sub9= dsexpmvtay2
+####################
+SubSRC1= $(Sub1).f90
+SubOBJ1= $(Sub1).obj
+SubSRC2= $(Sub2).f
+SubOBJ2= $(Sub2).obj
+SubSRC3= $(Sub3).f
+SubOBJ3= $(Sub3).obj
+SubSRC4= $(Sub4).f
+SubOBJ4= $(Sub4).obj
+SubSRC5= $(Sub5).f
+SubOBJ5= $(Sub5).obj
+SubSRC6= $(Sub6).f
+SubOBJ6= $(Sub6).obj
+SubSRC7= $(Sub7).f
+SubOBJ7= $(Sub7).obj
+SubSRC8= $(Sub8).f
+SubOBJ8= $(Sub8).obj
+SubSRC9= $(Sub9).f
+SubOBJ9= $(Sub9).obj
+##################################################
+
+EXPOKIT   = $(SubOBJ3)
+
+MATAID    = $(SubOBJ2)
+
+ADDOBJS   = $(SubOBJ1) $(SubOBJ4) $(SubOBJ5) $(SubOBJ6) $(SubOBJ7) $(SubOBJ8) $(SubOBJ9)
+
+all: $(MATAID) $(EXPOKIT) $(ADDOBJS)
+
+$(SubOBJ1) : $(SubSRC1)
+	$(FCC) -c $(SubSRC1)
+
+$(SubOBJ2): $(SubSRC2)
+	$(FCC) -c $(SubSRC2)
+
+$(SubOBJ3): $(SubSRC3)
+	$(FCC) -c $(SubSRC3)
+
+$(SubOBJ4): $(SubSRC4)
+	$(FCC) -c $(SubSRC4)
+
+$(SubOBJ5): $(SubSRC5)
+	$(FCC) -c $(SubSRC5)
+
+$(SubOBJ6): $(SubSRC6)
+	$(FCC) -c $(SubSRC6)
+
+$(SubOBJ7): $(SubSRC7)
+	$(FCC) -c $(SubSRC7)
+
+$(SubOBJ8): $(SubSRC8)
+	$(FCC) -c $(SubSRC8)
+
+$(SubOBJ9): $(SubSRC9)
+	$(FCC) -c $(SubSRC9)
