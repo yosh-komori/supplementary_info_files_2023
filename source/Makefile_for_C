@@ -1,4 +1,11 @@
 # Makefile_intel
+# Ver. 0.1 (1-Sep-2023)
+#   This is available in Intel oneAPI 2022.
+#   You can input the following on a command line to compile
+#   the C codes:
+#   make -f Makefile_for_C
+#   1) srock1_skrock and GetSKROCKVal were added.
+##########
 # Ver. 0 (26-Apr-2023)
 #   This is available in Intel oneAPI 2022.
 #   You can input the following on a command line to compile
@@ -29,6 +36,8 @@ Sub3= mt19937ar
 Sub4= srock2_using_Ab_values
 Sub5= GetSROCK2Val_from_rectp
 Sub6= SERK3_SSDFMT_DNoise
+Sub7= srock1_skrock
+Sub8= GetSKROCKVal
 ####################
 SubSRC1= $(Sub1).c
 SubOBJ1= $(Sub1).obj
@@ -42,11 +51,15 @@ SubSRC5= $(Sub5).c
 SubOBJ5= $(Sub5).obj
 SubSRC6= $(Sub6).c
 SubOBJ6= $(Sub6).obj
+SubSRC7= $(Sub7).c
+SubOBJ7= $(Sub7).obj
+SubSRC8= $(Sub8).c
+SubOBJ8= $(Sub8).obj
 ##################################################
 AddOBJ1= Copy_Ab_values_for_C.obj
 AddOBJ2= dgcoov.obj dgpadm.obj dsExtPhiv.obj dsexpv.obj dsphi1v.obj dsExtPhi2vBig.obj dsPhi2vBig.obj dsexpmvtay2.obj
 ##################################################
-SubOBJs= $(SubOBJ1) $(SubOBJ2) $(SubOBJ3) $(SubOBJ4) $(SubOBJ5) $(SubOBJ6) $(AddOBJ1) $(AddOBJ2)
+SubOBJs= $(SubOBJ1) $(SubOBJ2) $(SubOBJ3) $(SubOBJ4) $(SubOBJ5) $(SubOBJ6) $(SubOBJ7) $(SubOBJ8) $(AddOBJ1) $(AddOBJ2)
 ##################################################
 
 all: $(EXE1)
@@ -75,3 +88,9 @@ $(SubOBJ5) : $(SubSRC5)
 
 $(SubOBJ6) : $(SubSRC6)
 	 $(CC) -c $(SubSRC6) $(COPT) $(COPT1)
+
+$(SubOBJ7) : $(SubSRC7)
+	 $(CC) -c $(SubSRC7) $(COPT) $(COPT1)
+
+$(SubOBJ8) : $(SubSRC8)
+	 $(CC) -c $(SubSRC8) $(COPT) $(COPT1)
