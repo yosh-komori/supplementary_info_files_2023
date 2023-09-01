@@ -1,6 +1,15 @@
 /******************************************************/
 /* filename: main_simul_intel.c                       */
 /*                                                    */
+/* Ver. 0.1 (1-Sep-2023)                              */
+/* 1) OMP_wo1_skrock_eta2_for_DNoiseSDEs_WinMulti
+      and
+      OMP_wo1_skrock_eta2_for_DNoiseSDEs_WinMulti_withCnt
+      were added.
+   2) ran_gene_2p_Only_using_genrand_int32 was added.
+ */
+/******************************************************/
+/* Ver. 0                                             */
 /* This program solves Ito SDEs                       */
 /*    dy=ffunc dt + sum_i=1^m gfunc_i dw_i            */
 /* by an SRK.                                         */
@@ -17,8 +26,8 @@
 #include "mkl_lapacke.h"
 
 /* The following flag is used to assign an srk method. */
-#define SRK_TYPE 1 /* 1, 2, 3 (for noncommutative noise),
-		      20, 21, 22, 23 (for diagonal noise). */
+#define SRK_TYPE 41 /* 1, 2, 3 (for noncommutative noise),
+		      20, 21, 22, 23, 41 (for diagonal noise). */
 
 #if (21 == SRK_TYPE) || (22 == SRK_TYPE) || (23 == SRK_TYPE)
 #   include "For_Kry_sub_tech.h"
@@ -50,6 +59,9 @@
 #  define SRK    OMP_wo2_SSDFMT_Taylor_for_DNoiseSDEs_WinMulti
 #  define SRKcnt OMP_wo2_SSDFMT_Taylor_for_DNoiseSDEs_WinMulti_withCnt
 #  define SRKcntmat OMP_wo2_SSDFMT_Taylor_for_DNoiseSDEs_WinMulti_withCntMatProd
+#elif 41 == SRK_TYPE
+#  define SRK    OMP_wo1_skrock_eta2_for_DNoiseSDEs_WinMulti
+#  define SRKcnt OMP_wo1_skrock_eta2_for_DNoiseSDEs_WinMulti_withCnt
 #else
 #  define SRK    /* nothing */
 #  define SRKcnt /* nothing */
@@ -72,16 +84,16 @@
 #define  XRANGE               1.0/2.0 /* 1.0, 1.0/2.0 */
 
 /* Minimum of a step size. */
-#define  STEPLENGCONST    1.0/4.0 /*1.0/4.0, 1.0/8.0, 1.0/2048.0 */
-#define  END_STEPLENG     1.0/4.0 /*1.0/4.0, 1.0/8.0, 1.0/2048.0 */
+#define  STEPLENGCONST    1.0/64.0 /*1.0/4.0, 1.0/8.0, 1.0/2048.0 */
+#define  END_STEPLENG     1.0/64.0 /*1.0/4.0, 1.0/8.0, 1.0/2048.0 */
 
 #define  NN        127
 #define  YDIM_2    NN*NN
 
-#define  YDIM      2 /* 2 (for testfunc11, testfunc12),
+#define  YDIM      2*YDIM_2 /* 2 (for testfunc11, testfunc12),
 			2*YDIM_2 (for testfunc13). */
 /* A type of SDEs. */
-#define TESTFUNC    11 /* 11, 12, 13 */
+#define TESTFUNC    13 /* 11, 12, 13 */
 
 #if (13 == TESTFUNC)
 #   define  FDIM      2
@@ -489,8 +501,31 @@ int OMP_wo2_SSDFMT_Taylor_for_DNoiseSDEs_WinMulti_withCntMatProd(int ydim,
 							  unsigned long long *ev_cnt,
 							  unsigned long long *Taylor_mat_prod_cnt);
 
-void init_genrand(unsigned long s);
+/* For 41 == SRK_TYPE */
+extern int OMP_wo1_skrock_eta2_for_DNoiseSDEs_WinMulti(int ydim,
+						  unsigned long traj,
+						  double *yvec,
+						  double step,
+						  char *ran2p,
+						  void (*ffunc)(),
+						  void (*gfunc_diag)(),
+						  int ss,
+						  double work[],
+						  double *ynew);
+extern int OMP_wo1_skrock_eta2_for_DNoiseSDEs_WinMulti_withCnt(int ydim,
+						  unsigned long traj,
+						  double *yvec,
+						  double step,
+						  char *ran2p,
+						  void (*ffunc)(),
+						  void (*gfunc_diag)(),
+						  int ss,
+						  double work[],
+						  double *ynew,
+						  unsigned long long *ev_cnt);
 
+void init_genrand(unsigned long s);
+int ran_gene_2p_Only_using_genrand_int32(int traject, int wdim, char ran2p[]);
 int ran_gene_full_using_genrand_int32(int traject, int wdim,
 				      char ran2p[], char ran3p[]);
 
@@ -562,6 +597,8 @@ int main(void) {
   double work[8*(5+6*WDIM)*YDIM];
 #elif (22 == SRK_TYPE) || (23 == SRK_TYPE)
   static double work[8*11*YDIM];
+#elif (41 == SRK_TYPE)
+  static double work[8*6*YDIM];
 #else
   /* nothing */
 #endif
@@ -599,7 +636,7 @@ int main(void) {
   mMin=10; /* 1, 10 */
 #endif
 
-  stagenum=4; /* 80, 53, 10, 7, 5, 4 (for srock) */
+  stagenum=15; /* 80, 53, 10, 7, 5, 4 (for srock) */
 
 #if YDIM == 2
 #   if 12 == TESTFUNC
@@ -639,7 +676,7 @@ int main(void) {
     exit(0);
   }
 
-#if (20 == SRK_TYPE) || (21 == SRK_TYPE) || (22 == SRK_TYPE) || (23 == SRK_TYPE)
+#if (20 == SRK_TYPE) || (21 == SRK_TYPE) || (22 == SRK_TYPE) || (23 == SRK_TYPE) || (41 == SRK_TYPE)
   if (YDIM != WDIM) {
     printf("Error: YDIM != WDIM in SDEs with diagonal noise!\n");
     exit(0);
@@ -727,11 +764,18 @@ int main(void) {
 	/* xpoint keeps changing until it reaches XRANGE. */
 	while(eps<fabs(XRANGE-xpoint)) {
 	  /* A loop for i to generate random numbers for one step. */
+#if (41 == SRK_TYPE)
+	  if(0!=ran_gene_2p_Only_using_genrand_int32(traject, wdim, ran2p)) {
+	    printf("Error in ran_gene_2p_Only_using_genrand_init32!");
+	    exit(1);
+	  }
+#else
 	  if(0!=ran_gene_full_using_genrand_int32(traject, wdim, ran2p,
 						  ran3p)) {
 	    printf("Error in ran_gene_full_using_genrand_init32!");
 	    exit(1);
 	  }
+#endif
 	  
 	  if(0 == i_batch) {
 	    evr_cnt+=(2*wdim)*traject;
@@ -785,6 +829,10 @@ int main(void) {
 			        work_T, workAux,
 			        ynew, &evf_cnt)) {
 #   endif
+#elif (41 == SRK_TYPE)
+	      if(0 != SRKcnt(ydim, traject, yvec, stepleng, ran2p,
+			     ffunc, gfunc_diag, stagenum, work,
+			     ynew, &evf_cnt)) {
 #else
 	      if(0 != SRKcnt(ydim, traject, yvec, stepleng, ran2p,
 			     ffunc, gfunc_gene, wdim, work, ynew, &evf_cnt)) {
@@ -814,6 +862,9 @@ int main(void) {
 			    ffunc, gfunc_diag, mMin, lwsp, work,
 			    work_T, workAux,
 			    ynew)) {
+#elif (41 == SRK_TYPE)
+	      if(0 != SRK(ydim, traject, yvec, stepleng, ran2p,
+			  ffunc, gfunc_diag, stagenum, work, ynew)) {
 #else
 		  /* nothing */
 #endif
