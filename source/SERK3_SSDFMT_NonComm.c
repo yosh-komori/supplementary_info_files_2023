@@ -1,5 +1,11 @@
 /* Weak order stochastic exponential RK schemes for
    Ito SDEs with noncommutative noise */
+/* Ver. 1
+   A bug related to glTmp1 and glTmp2 was removed
+   in OMP_wo2_Ef_AstabExpRK3_for_NonCommSDEs_WinMulti_*.
+ */
+/******/
+/* Ver. 0 */
 /* This file was made to put on GitHub (26-Apr-2023). */
 /*************************************************************/
      
@@ -176,7 +182,7 @@ extern int OMP_wo2_Ef_AstabExpRK3_for_NonCommSDEs_WinMulti(int ydim,
     b2=(3-2*SQ6)/5.0;
 
   int ii, jj, kk, ll, ll1, ll2, ydimPow2=ydim*ydim;
-  double sqstep, glTmp1, glTmp2;
+  double sqstep;
 
   int  ydimDummy=ydim /* to avoid an error of dimension */;
   double *exMat, *hPh1Mat, *hPh2Mat, *ex_05Mat, *hPh1_05Mat, *hPh2_05Mat;
@@ -210,6 +216,7 @@ extern int OMP_wo2_Ef_AstabExpRK3_for_NonCommSDEs_WinMulti(int ydim,
   
   if (static_step!=step) {
     if(1==ydim) {
+      double glTmp1, glTmp2;
       exMat[0]=exp(A_mat[0]*step);
       hPh1Mat[0]=(exp(A_mat[0]*step)-1)/A_mat[0];
       glTmp1=A_mat[0]*step;
@@ -226,7 +233,7 @@ extern int OMP_wo2_Ef_AstabExpRK3_for_NonCommSDEs_WinMulti(int ydim,
       double *tmpMat, *bvector;
       
       double _Complex dummy, *diag, *matT, *InvMatT, *tmpMatC, *tmpDiag,
-	*solution, *tmpExMat;
+	*solution, *tmpExMat, glTmp1, glTmp2;
       
       double *eigenVal_real, *eigenVal_imag, *eigenVecs, *vecDummy;
 
@@ -882,7 +889,7 @@ OMP_wo2_Ef_AstabExpRK3_for_NonCommSDEs_WinMulti_withCnt(int ydim,
     b2=(3-2*SQ6)/5.0;
 
   int ii, jj, kk, ll, ll1, ll2, ydimPow2=ydim*ydim;
-  double sqstep, glTmp1, glTmp2;
+  double sqstep;
   unsigned long long func_ev_num[MaxCoreNumForSERK];
 
   int  ydimDummy=ydim /* to avoid an error of dimension */;
@@ -917,6 +924,7 @@ OMP_wo2_Ef_AstabExpRK3_for_NonCommSDEs_WinMulti_withCnt(int ydim,
   
   if (static_step!=step) {
     if(1==ydim) {
+      double glTmp1, glTmp2;
       exMat[0]=exp(A_mat[0]*step);
       hPh1Mat[0]=(exp(A_mat[0]*step)-1)/A_mat[0];
       glTmp1=A_mat[0]*step;
@@ -933,7 +941,7 @@ OMP_wo2_Ef_AstabExpRK3_for_NonCommSDEs_WinMulti_withCnt(int ydim,
       double *tmpMat, *bvector;
       
       double _Complex dummy, *diag, *matT, *InvMatT, *tmpMatC, *tmpDiag,
-	*solution, *tmpExMat;
+	*solution, *tmpExMat, glTmp1, glTmp2;
       
       double *eigenVal_real, *eigenVal_imag, *eigenVecs, *vecDummy;
 
@@ -1596,7 +1604,7 @@ OMP_wo2_Ef_AstabExpRK3_for_NonCommSDEs_WinMulti_withCntMatProc(int ydim,
     b2=(3-2*SQ6)/5.0;
 
   int ii, jj, kk, ll, ll1, ll2, ydimPow2=ydim*ydim;
-  double sqstep, glTmp1, glTmp2;
+  double sqstep;
   unsigned long long func_ev_num[MaxCoreNumForSERK], mat_proc_num[MaxCoreNumForSERK];
 
   int  ydimDummy=ydim /* to avoid an error of dimension */;
@@ -1631,6 +1639,7 @@ OMP_wo2_Ef_AstabExpRK3_for_NonCommSDEs_WinMulti_withCntMatProc(int ydim,
   
   if (static_step!=step) {
     if(1==ydim) {
+      double glTmp1, glTmp2;
       exMat[0]=exp(A_mat[0]*step);
       hPh1Mat[0]=(exp(A_mat[0]*step)-1)/A_mat[0];
       glTmp1=A_mat[0]*step;
@@ -1647,7 +1656,7 @@ OMP_wo2_Ef_AstabExpRK3_for_NonCommSDEs_WinMulti_withCntMatProc(int ydim,
       double *tmpMat, *bvector;
       
       double _Complex dummy, *diag, *matT, *InvMatT, *tmpMatC, *tmpDiag,
-	*solution, *tmpExMat;
+	*solution, *tmpExMat, glTmp1, glTmp2;
       
       double *eigenVal_real, *eigenVal_imag, *eigenVecs, *vecDummy;
 
