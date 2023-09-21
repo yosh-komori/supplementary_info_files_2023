@@ -1,6 +1,17 @@
 /******************************************************/
 /* filename: main_simul_intel.c                       */
 /*                                                    */
+/* Ver. 0.2 (21-Sep-2023)                              */
+/* 1) OMP_wo2_revA_srock2_avr_Al_Ab_val_for_NonCommSDEs_WinMulti
+      and
+      OMP_wo2_revA_srock2_avr_Al_Ab_val_for_NonCommSDEs_WinMulti_withCnt
+      were added.
+   2) OMP_wo2_revA_srock2_avr_Al_Ab_val_for_DNoiseSDEs_WinMulti
+      and
+      OMP_wo2_revA_srock2_avr_Al_Ab_val_for_DNoiseSDEs_WinMulti_withCnt
+      were added.
+ */
+/***/
 /* Ver. 0.1 (1-Sep-2023)                              */
 /* 1) OMP_wo1_skrock_eta2_for_DNoiseSDEs_WinMulti
       and
@@ -26,8 +37,8 @@
 #include "mkl_lapacke.h"
 
 /* The following flag is used to assign an srk method. */
-#define SRK_TYPE 41 /* 1, 2, 3 (for noncommutative noise),
-		      20, 21, 22, 23, 41 (for diagonal noise). */
+#define SRK_TYPE 24 /* 1, 2, 3, 4 (for noncommutative noise),
+		      20, 21, 22, 23, 24, 41 (for diagonal noise). */
 
 #if (21 == SRK_TYPE) || (22 == SRK_TYPE) || (23 == SRK_TYPE)
 #   include "For_Kry_sub_tech.h"
@@ -44,6 +55,9 @@
 #  define SRK    OMP_wo2_SSDFMT_for_NonCommSDEs_WinMulti
 #  define SRKcnt OMP_wo2_SSDFMT_for_NonCommSDEs_WinMulti_withCnt
 #  define SRKcntmat OMP_wo2_SSDFMT_for_NonCommSDEs_WinMulti_withCntMatProc
+#elif 4 == SRK_TYPE
+#  define SRK    OMP_wo2_revA_srock2_avr_Al_Ab_val_for_NonCommSDEs_WinMulti
+#  define SRKcnt OMP_wo2_revA_srock2_avr_Al_Ab_val_for_NonCommSDEs_WinMulti_withCnt
 #elif 20 == SRK_TYPE
 #  define SRK    OMP_wo2_srock2_Ab_values_for_DNoiseSDEs_WinMulti
 #  define SRKcnt OMP_wo2_srock2_Ab_values_for_DNoiseSDEs_WinMulti_withCnt
@@ -59,6 +73,9 @@
 #  define SRK    OMP_wo2_SSDFMT_Taylor_for_DNoiseSDEs_WinMulti
 #  define SRKcnt OMP_wo2_SSDFMT_Taylor_for_DNoiseSDEs_WinMulti_withCnt
 #  define SRKcntmat OMP_wo2_SSDFMT_Taylor_for_DNoiseSDEs_WinMulti_withCntMatProd
+#elif 24 == SRK_TYPE
+#  define SRK    OMP_wo2_revA_srock2_avr_Al_Ab_val_for_DNoiseSDEs_WinMulti
+#  define SRKcnt OMP_wo2_revA_srock2_avr_Al_Ab_val_for_DNoiseSDEs_WinMulti_withCnt
 #elif 41 == SRK_TYPE
 #  define SRK    OMP_wo1_skrock_eta2_for_DNoiseSDEs_WinMulti
 #  define SRKcnt OMP_wo1_skrock_eta2_for_DNoiseSDEs_WinMulti_withCnt
@@ -81,11 +98,11 @@
 #define  DISPER_DATA
 
 /* Maximum of an independent variable x. */
-#define  XRANGE               1.0/2.0 /* 1.0, 1.0/2.0 */
+#define  XRANGE               1.0 /* 1.0, 1.0/2.0 */
 
 /* Minimum of a step size. */
-#define  STEPLENGCONST    1.0/64.0 /*1.0/4.0, 1.0/8.0, 1.0/2048.0 */
-#define  END_STEPLENG     1.0/64.0 /*1.0/4.0, 1.0/8.0, 1.0/2048.0 */
+#define  STEPLENGCONST    1.0/4.0 /*1.0/4.0, 1.0/8.0, 1.0/2048.0 */
+#define  END_STEPLENG     1.0/4.0 /*1.0/4.0, 1.0/8.0, 1.0/2048.0 */
 
 #define  NN        127
 #define  YDIM_2    NN*NN
@@ -524,6 +541,60 @@ extern int OMP_wo1_skrock_eta2_for_DNoiseSDEs_WinMulti_withCnt(int ydim,
 						  double *ynew,
 						  unsigned long long *ev_cnt);
 
+/* For 4 == SRK_TYPE */
+extern int
+OMP_wo2_revA_srock2_avr_Al_Ab_val_for_NonCommSDEs_WinMulti (int ydim,
+							    unsigned long traj,
+							    double *yvec,
+							    double step,
+							    char *ran2pFull,
+							    char *ran3p,
+							    void (*ffunc)(),
+							    void (*gfunc_gene)(),
+							    int wdim, int ss,
+							    double work[],
+							    double *ynew);
+extern int
+OMP_wo2_revA_srock2_avr_Al_Ab_val_for_NonCommSDEs_WinMulti_withCnt (int ydim,
+								    unsigned long traj,
+								    double *yvec,
+								    double step,
+								    char *ran2pFull,
+								    char *ran3p,
+								    void (*ffunc)(),
+								    void (*gfunc_gene)(),
+								    int wdim, int ss,
+								    double work[],
+								    double *ynew,
+								    unsigned long long *ev_cnt);
+
+/* For 24 == SRK_TYPE */
+extern int
+OMP_wo2_revA_srock2_avr_Al_Ab_val_for_DNoiseSDEs_WinMulti (int ydim,
+							   unsigned long traj,
+							   double *yvec,
+							   double step,
+							   char *ran2pFull,
+							   char *ran3p,
+							   void (*ffunc)(),
+							   void (*gfunc_diag)(),
+							   int ss,
+							   double work[],
+							   double *ynew);
+extern int
+OMP_wo2_revA_srock2_avr_Al_Ab_val_for_DNoiseSDEs_WinMulti_withCnt (int ydim,
+							   unsigned long traj,
+							   double *yvec,
+							   double step,
+							   char *ran2pFull,
+							   char *ran3p,
+							   void (*ffunc)(),
+							   void (*gfunc_diag)(),
+							   int ss,
+							   double work[],
+							   double *ynew,
+							   unsigned long long *ev_cnt);
+
 void init_genrand(unsigned long s);
 int ran_gene_2p_Only_using_genrand_int32(int traject, int wdim, char ran2p[]);
 int ran_gene_full_using_genrand_int32(int traject, int wdim,
@@ -585,11 +656,11 @@ int main(void) {
   /* Nothing */
 #endif
 
-#if (1 == SRK_TYPE)
+#if (1 == SRK_TYPE) || (4 == SRK_TYPE)
   static double work[8*(7+6*WDIM)*YDIM];
 #elif (2 == SRK_TYPE)
   double work[8*(7+7*WDIM)*YDIM];
-#elif (20 == SRK_TYPE)
+#elif (20 == SRK_TYPE) || (24 == SRK_TYPE)
   static double work[8*13*YDIM];
 #elif (21 == SRK_TYPE)
   static double work[8*16*YDIM];
@@ -636,7 +707,7 @@ int main(void) {
   mMin=10; /* 1, 10 */
 #endif
 
-  stagenum=15; /* 80, 53, 10, 7, 5, 4 (for srock) */
+  stagenum=80; /* 80, 53, 10, 7, 5, 4 (for srock) */
 
 #if YDIM == 2
 #   if 12 == TESTFUNC
@@ -676,7 +747,7 @@ int main(void) {
     exit(0);
   }
 
-#if (20 == SRK_TYPE) || (21 == SRK_TYPE) || (22 == SRK_TYPE) || (23 == SRK_TYPE) || (41 == SRK_TYPE)
+#if (20 == SRK_TYPE) || (21 == SRK_TYPE) || (22 == SRK_TYPE) || (23 == SRK_TYPE) || (41 == SRK_TYPE) || (24 == SRK_TYPE)
   if (YDIM != WDIM) {
     printf("Error: YDIM != WDIM in SDEs with diagonal noise!\n");
     exit(0);
@@ -793,10 +864,10 @@ int main(void) {
 			     A_mat, ffunc, gfunc_gene, wdim, work, work_A,
 			     ynew, &evf_cnt)) {
 #   endif
-#elif (1 == SRK_TYPE)
+#elif (1 == SRK_TYPE) || (4 == SRK_TYPE)
 	      if(0 != SRKcnt(ydim, traject, yvec, stepleng, ran2p, ran3p,
 			     ffunc, gfunc_gene, wdim, stagenum, work, ynew, &evf_cnt)) {
-#elif (20 == SRK_TYPE)
+#elif (20 == SRK_TYPE) || (24 == SRK_TYPE)
 	      if(0 != SRKcnt(ydim, traject, yvec, stepleng, ran2p, ran3p,
 	      ffunc, gfunc_diag, stagenum, work, ynew, &evf_cnt)) {
 #elif (21 == SRK_TYPE) || (22 == SRK_TYPE)
@@ -845,10 +916,10 @@ int main(void) {
 	      if(0 != SRK(ydim, traject, yvec, stepleng, ran2p, ran3p,
 			  A_mat, ffunc, gfunc_gene, wdim, work, work_A,
 			  ynew)) {
-#elif (1 == SRK_TYPE)
+#elif (1 == SRK_TYPE) || (4 == SRK_TYPE)
 	     if(0 != SRK(ydim, traject, yvec, stepleng, ran2p, ran3p,
 			  ffunc, gfunc_gene, wdim, stagenum, work, ynew)) {
-#elif (20 == SRK_TYPE)
+#elif (20 == SRK_TYPE) || (24 == SRK_TYPE)
 	     if(0 != SRK(ydim, traject, yvec, stepleng, ran2p, ran3p,
 			  ffunc, gfunc_diag, stagenum, work, ynew)) {
 #elif (21 == SRK_TYPE) || (22 == SRK_TYPE)
